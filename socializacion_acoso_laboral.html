@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ruta de Atención · Presunto Acoso Laboral · COCOLA</title>
+<style>
+  :root{
+    --navy:#10233F;
+    --navy-deep:#0A1830;
+    --teal:#1F6F5C;
+    --amber:#D9A441;
+    --paper:#F5F2EC;
+    --paper-dim:#EDE9DF;
+    --ink:#1C1C1C;
+    --ink-soft:#4A4F58;
+    --line:#D8D3C7;
+    --white:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Public Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height:1.6;
+  }
+  h1,h2,h3,.route-label{
+    font-family:'Oswald', 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    text-transform:uppercase;
+    letter-spacing:0.02em;
+  }
+  .mono{
+    font-family:'IBM Plex Mono','Courier New',monospace;
+    letter-spacing:0.03em;
+  }
+
+  /* ===== HERO — bus destination board ===== */
+  .hero{
+    background:linear-gradient(180deg, var(--navy) 0%, var(--navy-deep) 100%);
+    color:var(--paper);
+    padding:64px 24px 56px;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:repeating-linear-gradient(
+      -35deg,
+      rgba(217,164,65,0.05) 0px,
+      rgba(217,164,65,0.05) 2px,
+      transparent 2px,
+      transparent 26px
+    );
+    pointer-events:none;
+  }
+  .hero-inner{
+    max-width:920px;
+    margin:0 auto;
+    position:relative;
+  }
+  .board{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    background:var(--navy-deep);
+    border:2px solid var(--amber);
+    border-radius:4px;
+    padding:6px 14px;
+    font-size:12px;
+    letter-spacing:0.12em;
+    color:var(--amber);
+    margin-bottom:28px;
+  }
+  .board .dot{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--amber);
+    animation:blink 1.6s infinite;
+  }
+  @keyframes blink{ 0%,100%{opacity:1;} 50%{opacity:0.25;} }
+  .hero h1{
+    font-size:clamp(32px, 5.4vw, 56px);
+    line-height:1.05;
+    margin:0 0 18px;
+    font-weight:600;
+    color:var(--white);
+  }
+  .hero h1 span{color:var(--amber);}
+  .hero p.lead{
+    font-family:'Public Sans', sans-serif;
+    text-transform:none;
+    font-size:18px;
+    max-width:600px;
+    color:#CBD3DE;
+    margin:0 0 34px;
+  }
+  .hero-meta{
+    display:flex;
+    flex-wrap:wrap;
+    gap:22px;
+    font-size:13px;
+    color:#9AA6B5;
+    border-top:1px solid rgba(255,255,255,0.15);
+    padding-top:18px;
+  }
+  .hero-meta strong{color:var(--paper);}
+
+  /* ===== SECTION shell ===== */
+  section{
+    max-width:920px;
+    margin:0 auto;
+    padding:56px 24px;
+  }
+  .eyebrow{
+    font-size:12px;
+    color:var(--teal);
+    letter-spacing:0.14em;
+    margin-bottom:10px;
+    font-weight:600;
+  }
+  h2{
+    font-size:clamp(24px,3.4vw,34px);
+    color:var(--navy);
+    margin:0 0 20px;
+    font-weight:600;
+  }
+  .divider{
+    height:1px;
+    background:var(--line);
+    max-width:920px;
+    margin:0 auto;
+  }
+
+  /* ===== Conductas grid ===== */
+  .grid-conductas{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:2px;
+    background:var(--line);
+    border:1px solid var(--line);
+    margin-top:28px;
+  }
+  .conducta{
+    background:var(--white);
+    padding:18px 20px;
+    font-size:14.5px;
+    color:var(--ink-soft);
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+  }
+  .conducta::before{
+    content:"—";
+    color:var(--amber);
+    font-weight:700;
+    flex-shrink:0;
+  }
+
+  /* ===== Ruta / timeline (route stops) ===== */
+  .ruta{
+    position:relative;
+    margin-top:44px;
+    padding-left:40px;
+  }
+  .ruta-line{
+    position:absolute;
+    left:11px;
+    top:6px;
+    bottom:6px;
+    width:3px;
+    background:repeating-linear-gradient(
+      180deg, var(--teal) 0, var(--teal) 10px, transparent 10px, transparent 18px
+    );
+  }
+  .parada{
+    position:relative;
+    padding-bottom:38px;
+  }
+  .parada:last-child{padding-bottom:0;}
+  .parada::before{
+    content:attr(data-stop);
+    position:relative;
+    left:-40px;
+    top:0;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:26px;height:26px;
+    background:var(--navy);
+    color:var(--paper);
+    border-radius:50%;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    float:left;
+    margin-right:-26px;
+  }
+  .parada-content{margin-left:10px;}
+  .parada h3{
+    font-size:17px;
+    color:var(--navy);
+    margin:0 0 6px;
+    font-weight:600;
+    text-transform:none;
+    letter-spacing:0;
+  }
+  .parada p{
+    margin:0;
+    font-size:15px;
+    color:var(--ink-soft);
+    max-width:640px;
+  }
+
+  /* ===== Canales cards ===== */
+  .canales{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:16px;
+    margin-top:28px;
+  }
+  .canal{
+    background:var(--white);
+    border:1px solid var(--line);
+    border-left:4px solid var(--teal);
+    padding:20px 22px;
+  }
+  .canal .tag{
+    font-size:11px;
+    letter-spacing:0.1em;
+    color:var(--teal);
+    text-transform:uppercase;
+    font-weight:700;
+    margin-bottom:8px;
+    display:block;
+  }
+  .canal a{
+    color:var(--navy);
+    word-break:break-word;
+    font-size:14px;
+  }
+  .canal p{margin:6px 0 0;font-size:14px;color:var(--ink-soft);}
+
+  /* ===== Confidencialidad callout ===== */
+  .callout{
+    background:var(--navy);
+    color:var(--paper);
+    padding:36px 32px;
+    border-radius:2px;
+    margin-top:12px;
+    position:relative;
+  }
+  .callout::before{
+    content:"";
+    position:absolute;
+    left:0;top:0;bottom:0;
+    width:6px;
+    background:var(--amber);
+  }
+  .callout p{
+    margin:0;
+    font-size:15.5px;
+    color:#D8DEE6;
+    max-width:680px;
+  }
+  .callout strong{color:var(--amber);}
+
+  /* ===== CTA — final stop ===== */
+  .cta-section{
+    background:var(--navy-deep);
+    color:var(--paper);
+    text-align:center;
+    padding:64px 24px 72px;
+  }
+  .cta-inner{max-width:640px;margin:0 auto;}
+  .cta-stop{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    color:var(--amber);
+    font-size:12px;
+    letter-spacing:0.14em;
+    margin-bottom:18px;
+  }
+  .cta-section h2{color:var(--white);margin-bottom:14px;}
+  .cta-section p.sub{
+    text-transform:none;
+    color:#B7C0CC;
+    font-size:15.5px;
+    margin:0 0 32px;
+  }
+  .btn-asistencia{
+    display:inline-block;
+    background:var(--amber);
+    color:var(--navy-deep);
+    text-decoration:none;
+    font-family:'Oswald','Barlow Condensed',sans-serif;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    font-weight:600;
+    font-size:16px;
+    padding:16px 38px;
+    border-radius:3px;
+    transition:transform .15s ease, box-shadow .15s ease;
+    box-shadow:0 6px 0 #A8781E;
+  }
+  .btn-asistencia:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 0 #A8781E;
+  }
+  .btn-asistencia:active{
+    transform:translateY(2px);
+    box-shadow:0 3px 0 #A8781E;
+  }
+  .cta-foot{
+    margin-top:24px;
+    font-size:12.5px;
+    color:#8A93A0;
+  }
+
+  footer{
+    text-align:center;
+    padding:26px 24px;
+    font-size:12px;
+    color:var(--ink-soft);
+    background:var(--paper-dim);
+  }
+
+  @media (max-width:600px){
+    .hero{padding:48px 18px 40px;}
+    section{padding:44px 18px;}
+    .ruta{padding-left:34px;}
+    .parada::before{left:-34px;margin-right:-26px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .board .dot{animation:none;}
+    html{scroll-behavior:auto;}
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="board"><span class="dot"></span> COCOLA · JORNADA DE SOCIALIZACIÓN</div>
+    <h1>Ruta de atención frente al <span>presunto acoso laboral</span></h1>
+    <p class="lead">Conoce cómo el Comité de Convivencia Laboral de PRO TRANSPORTE S.A.S. recibe, protege y da trámite a los reportes de presunto acoso laboral.</p>
+    <div class="hero-meta">
+      <div><strong>Comité</strong> · Convivencia Laboral — COCOLA</div>
+      <div><strong>Formato</strong> · F-GE-25 V2</div>
+      <div><strong>Normativa</strong> · Resolución 3461 de 2025 · Ley 1581 de 2012</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<section id="que-es">
+  <div class="eyebrow">01 · Qué es COCOLA</div>
+  <h2>Un canal seguro para proteger la convivencia</h2>
+  <p style="max-width:680px;color:var(--ink-soft);font-size:15.5px;">
+    El Comité de Convivencia Laboral es la instancia encargada de recibir y examinar de manera confidencial los casos en los que un colaborador considera que ha sido víctima de presunto acoso laboral. Su labor se rige por principios de <strong>confidencialidad</strong> y <strong>debido proceso</strong>, y busca promover relaciones de trabajo respetuosas dentro de la organización.
+  </p>
+</section>
+
+<div class="divider"></div>
+
+<section id="conductas">
+  <div class="eyebrow">02 · Qué se considera acoso laboral</div>
+  <h2>Conductas que puedes reportar</h2>
+  <p style="max-width:680px;color:var(--ink-soft);font-size:15.5px;">Si has vivido o presenciado alguna de estas situaciones de forma reiterada, puedes acudir al comité:</p>
+  <div class="grid-conductas">
+    <div class="conducta">Maltrato laboral</div>
+    <div class="conducta">Persecución laboral</div>
+    <div class="conducta">Discriminación laboral</div>
+    <div class="conducta">Entorpecimiento laboral</div>
+    <div class="conducta">Inequidad laboral</div>
+    <div class="conducta">Desprotección laboral</div>
+    <div class="conducta">Agresiones verbales</div>
+    <div class="conducta">Amenazas</div>
+    <div class="conducta">Humillaciones públicas</div>
+    <div class="conducta">Sobrecarga laboral injustificada</div>
+    <div class="conducta">Aislamiento laboral</div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="ruta">
+  <div class="eyebrow">03 · Cómo se atiende un reporte</div>
+  <h2>La ruta, parada a parada</h2>
+  <div class="ruta">
+    <div class="ruta-line"></div>
+    <div class="parada" data-stop="1">
+      <div class="parada-content">
+        <h3>Identifica los hechos</h3>
+        <p>Qué ocurrió, cómo, cuándo, dónde, con qué frecuencia y quiénes estuvieron involucrados. Entre más claro el relato, más ágil es el análisis.</p>
+      </div>
+    </div>
+    <div class="parada" data-stop="2">
+      <div class="parada-content">
+        <h3>Reúne tus evidencias</h3>
+        <p>Correos, mensajes, fotografías, videos, audios, documentos o testigos que respalden lo ocurrido.</p>
+      </div>
+    </div>
+    <div class="parada" data-stop="3">
+      <div class="parada-content">
+        <h3>Presenta el reporte</h3>
+        <p>Diligencia el formato F-GE-25 por cualquiera de los canales disponibles, físico o digital.</p>
+      </div>
+    </div>
+    <div class="parada" data-stop="4">
+      <div class="parada-content">
+        <h3>El comité evalúa y responde</h3>
+        <p>COCOLA asigna un número de radicado, revisa el caso bajo confidencialidad y da trámite conforme al debido proceso.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="canales">
+  <div class="eyebrow">04 · Canales de reporte</div>
+  <h2>Por dónde puedes reportar</h2>
+  <div class="canales">
+    <div class="canal">
+      <span class="tag">Correo COCOLA</span>
+      <a href="mailto:defensalaboralprotransporte@gmail.com">defensalaboralprotransporte@gmail.com</a>
+    </div>
+    <div class="canal">
+      <span class="tag">Formulario digital</span>
+      <a href="https://forms.gle/sfRDBx9fFQ4e6uAn9" target="_blank" rel="noopener">forms.gle/sfRDBx9fFQ4e6uAn9</a>
+      <p>Formato de reporte de presunto acoso laboral en línea.</p>
+    </div>
+    <div class="canal">
+      <span class="tag">Formulario físico</span>
+      <p>F-GE-25 · Reporte de Presunto Acoso Laboral, disponible en tu sede.</p>
+    </div>
+    <div class="canal">
+      <span class="tag">Buzón de PQRS</span>
+      <p>Disponible en la oficina para radicar tu reporte de forma presencial.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p><strong>Tu información está protegida.</strong> Todo reporte se maneja bajo confidencialidad y debido proceso, conforme a la política de tratamiento de datos personales de PRO TRANSPORTE S.A.S. y la Ley 1581 de 2012.</p>
+  </div>
+</section>
+
+<div class="cta-section">
+  <div class="cta-inner">
+    <div class="cta-stop">● PRÓXIMA PARADA</div>
+    <h2>Jornada de socialización</h2>
+    <p class="sub">Acompáñanos a conocer en detalle esta ruta de atención. Confirma tu asistencia registrándote en el siguiente formulario.</p>
+    <a class="btn-asistencia" href="https://forms.cloud.microsoft/pages/responsepage.aspx?id=AxPjAzvOo0-wBayv2Sgc0QAWshW33KxDmcgBcaqeFx9UN0lRSERNNFNZSUIwT0RJSDNJOTQ4VDJFRC4u&route=shorturl" target="_blank" rel="noopener">Registrar asistencia</a>
+    <div class="cta-foot">Formulario de registro · Microsoft Forms</div>
+  </div>
+</div>
+
+<footer>
+  PRO TRANSPORTE S.A.S. · Comité de Convivencia Laboral — COCOLA · Formato F-GE-25 V2
+</footer>
+
+</body>
+</html>
