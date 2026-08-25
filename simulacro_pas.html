@@ -221,6 +221,22 @@
     #certArea{position:absolute;top:0;left:0;width:100%;margin:0;padding:0;}
     .cert-wrap{border-width:6px;box-shadow:none;}
   }
+  /* ---------- LEARN / CONTENT SCREENS ---------- */
+  .learn-block{margin-bottom:16px;}
+  .learn-block h3{
+    font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--steel);margin:0 0 8px;font-weight:600;
+  }
+  ul.learn-list{margin:0;padding-left:20px;font-size:14px;line-height:1.75;color:var(--ink);}
+  ul.learn-list li{margin-bottom:2px;}
+  .callout{
+    background:var(--card-2);border-left:4px solid var(--red);border-radius:6px;
+    padding:12px 14px;font-size:13.5px;line-height:1.55;color:#4a453c;margin:16px 0 18px;
+  }
+  .callout b{color:var(--red);}
+  .case-item{margin-bottom:16px;}
+  .case-item .case-title{font-family:'Oswald',sans-serif;font-weight:600;font-size:14.5px;
+    color:var(--ink);margin-bottom:4px;}
 </style>
 </head>
 <body>
@@ -377,10 +393,10 @@ let state = {
 };
 
 const GROUP_OF_SCREEN = {
-  name:0, intro:0, hazards:0, q_proteger:0,
-  q_avisar1:1, q_avisar2:1,
-  q_socorrer:2,
-  q_casos:3,
+  name:0, intro:0, proteger_learn:0, hazards:0, q_proteger:0,
+  avisar_learn:1, q_avisar1:1, q_avisar2:1,
+  socorrer_learn:2, q_socorrer:2,
+  casos_learn:3, q_casos:3,
   results:4, certificate:4
 };
 
@@ -445,14 +461,52 @@ function screenIntro(){
     <div class="hero-icon">🚧</div>
     <span class="tag proteger">Briefing</span>
     <h2>Vas de camino a un siniestro vial</h2>
-    <p class="desc">Recibes un aviso: uno de los vehículos de la flota está involucrado en un siniestro vial más adelante. Antes de que lleguen las autoridades, tú eres la primera respuesta. Este simulacro pone a prueba las tres fases del protocolo:</p>
+    <p class="desc">Recibes un aviso: uno de los vehículos de la flota está involucrado en un siniestro vial más adelante. Antes de que lleguen las autoridades, tú eres la primera respuesta. Primero repasamos cada fase del protocolo y luego la practicas:</p>
     <ul class="bullets">
       <li><b style="color:var(--green)">PROTEGER</b> — la escena, a ti mismo y a los demás.</li>
-      <li><b style="color:var(--amber)">AVISAR</b> — de forma clara, rápida y precisa.</li>
-      <li><b style="color:var(--red)">SOCORRER</b> — sin causar más daño.</li>
+      <li><b style="color:var(--red)">AVISAR</b> — de forma clara, rápida y precisa.</li>
+      <li><b style="color:var(--ink)">SOCORRER</b> — sin causar más daño.</li>
     </ul>
     <div class="actions">
-      <button class="btn primary" onclick="goHazards()">Iniciar simulacro →</button>
+      <button class="btn primary" onclick="screenProtegerLearn()">Comenzar →</button>
+    </div>
+  `);
+}
+
+/* ---- LEARN: PROTEGER ---- */
+function screenProtegerLearn(){
+  state.screen="proteger_learn";
+  card(`
+    <span class="tag proteger">1 · Proteger</span>
+    <h2>Proteger la escena</h2>
+    <p class="desc">La primera prioridad es protegerse a sí mismo, a los demás usuarios de la vía y la escena del siniestro.</p>
+    <div class="learn-block">
+      <h3>Qué hacer</h3>
+      <ul class="learn-list">
+        <li>Mantenga la calma y evalúe la situación antes de actuar.</li>
+        <li>Detenga el vehículo en un lugar seguro, cuando las condiciones lo permitan.</li>
+        <li>Encienda las luces de emergencia y señalice adecuadamente la zona.</li>
+        <li>Utilice conos, triángulos de seguridad, chaleco reflectivo y demás elementos disponibles.</li>
+        <li>Ubíquese en un lugar seguro, evitando permanecer expuesto al tráfico.</li>
+        <li>Identifique posibles peligros antes de acercarse al vehículo o a los lesionados.</li>
+      </ul>
+    </div>
+    <div class="learn-block">
+      <h3>Verifique especialmente</h3>
+      <ul class="learn-list">
+        <li>Tráfico vehicular y riesgo de atropellamiento.</li>
+        <li>Incendio, humo o explosión.</li>
+        <li>Derrame de combustible, sustancias o mercancías.</li>
+        <li>Vehículos inestables o con riesgo de volcamiento.</li>
+        <li>Cables eléctricos u otros elementos energizados.</li>
+        <li>Condiciones climáticas o de visibilidad.</li>
+        <li>Presencia de peatones u otros actores viales.</li>
+        <li>Mercancías peligrosas o sustancias que puedan representar un riesgo.</li>
+      </ul>
+    </div>
+    <div class="callout"><b>Recuerde:</b> No se convierta en una segunda víctima. No se acerque ni intervenga cuando la escena represente un peligro que no pueda controlar.</div>
+    <div class="actions">
+      <button class="btn primary" onclick="goHazards()">Practicar identificación de peligros →</button>
     </div>
   `);
 }
@@ -572,7 +626,41 @@ function checkQuestion(){
 }
 
 function goProtegerQuiz(){
-  renderQuestion(Q_PROTEGER, "proteger", "1 · Proteger", goAvisarNum);
+  renderQuestion(Q_PROTEGER, "proteger", "1 · Proteger", screenAvisarLearn);
+}
+
+/* ---- LEARN: AVISAR ---- */
+function screenAvisarLearn(){
+  state.screen="avisar_learn";
+  card(`
+    <span class="tag avisar">2 · Avisar</span>
+    <h2>Activar la ayuda</h2>
+    <p class="desc">Una vez protegida la escena, comunique la emergencia de manera clara, rápida y precisa.</p>
+    <div class="learn-block">
+      <h3>Qué hacer</h3>
+      <ul class="learn-list">
+        <li>Informe inmediatamente al jefe inmediato y al área de SST de PROTRANSPORTE.</li>
+        <li>Comuníquese con la línea de emergencias 123.</li>
+        <li>Comuníquese con #767, cuando corresponda.</li>
+        <li>Solicite apoyo de las autoridades, organismos de socorro y servicios de emergencia según la situación.</li>
+      </ul>
+    </div>
+    <div class="learn-block">
+      <h3>Información que debe proporcionar</h3>
+      <ul class="learn-list">
+        <li><b>Qué ocurrió</b> — tipo de siniestro o emergencia presentada.</li>
+        <li><b>Dónde ocurrió</b> — ubicación exacta, carretera, vía, municipio y puntos de referencia.</li>
+        <li><b>Cuándo ocurrió</b> — hora aproximada del evento.</li>
+        <li><b>Cuántas personas están involucradas</b> — número de lesionados y afectados.</li>
+        <li><b>Qué peligros existen</b> — incendio, derrame, mercancías peligrosas, cables, tráfico, etc.</li>
+        <li><b>Qué vehículos están involucrados</b> — tipo de vehículo y condiciones observadas.</li>
+      </ul>
+    </div>
+    <div class="callout"><b>Recuerde:</b> Una buena comunicación puede marcar la diferencia entre la vida y la muerte.</div>
+    <div class="actions">
+      <button class="btn primary" onclick="goAvisarNum()">Practicar el reporte de la emergencia →</button>
+    </div>
+  `);
 }
 function goAvisarNum(){
   state.screen="q_avisar1";
@@ -580,7 +668,42 @@ function goAvisarNum(){
 }
 function goAvisarCheck(){
   state.screen="q_avisar2";
-  renderQuestion(Q_AVISAR_CHECK, "avisar", "2 · Avisar", goSocorrer);
+  renderQuestion(Q_AVISAR_CHECK, "avisar", "2 · Avisar", screenSocorrerLearn);
+}
+
+/* ---- LEARN: SOCORRER ---- */
+function screenSocorrerLearn(){
+  state.screen="socorrer_learn";
+  card(`
+    <span class="tag socorrer">3 · Socorrer</span>
+    <h2>Ayudar sin causar más daño</h2>
+    <p class="desc">La prioridad es ayudar a los lesionados sin aumentar sus lesiones ni exponerse a nuevos peligros.</p>
+    <div class="learn-block">
+      <h3>Qué hacer</h3>
+      <ul class="learn-list">
+        <li>Evalúe rápidamente la situación y determine si es seguro acercarse.</li>
+        <li>Brinde primeros auxilios únicamente si cuenta con la formación necesaria, como curso de primer respondiente.</li>
+        <li>Tranquilice y acompañe a los lesionados mientras llega la ayuda profesional.</li>
+        <li>Observe permanentemente cualquier cambio en el estado de las personas afectadas.</li>
+        <li>Siga las instrucciones de los organismos de emergencia cuando lleguen al lugar.</li>
+      </ul>
+    </div>
+    <div class="learn-block">
+      <h3>Qué NO se debe hacer</h3>
+      <ul class="learn-list">
+        <li>No movilice a los lesionados, salvo que exista un peligro inminente.</li>
+        <li>No retire cascos, cinturones u otros elementos de protección sin necesidad.</li>
+        <li>No suministre medicamentos, alimentos o bebidas.</li>
+        <li>No realice procedimientos para los cuales no esté capacitado.</li>
+        <li>No intente apagar incendios o controlar derrames si esto representa un riesgo.</li>
+        <li>No permita aglomeraciones alrededor de los lesionados.</li>
+        <li>No actúe como "héroe" poniendo en riesgo su propia vida.</li>
+      </ul>
+    </div>
+    <div class="actions">
+      <button class="btn primary" onclick="goSocorrer()">Practicar situaciones de socorro →</button>
+    </div>
+  `);
 }
 
 /* ---- SOCORRER: rapid true/false series ---- */
@@ -617,9 +740,56 @@ function answerSocorrer(said){
   fb.innerHTML = `<b>${isRight?"¡Correcto!":"No exactamente."}</b> ${item.exp}`;
   renderRoute();
   const isLast = state.socorrerIdx===Q_SOCORRER.length-1;
-  document.getElementById('actions').innerHTML = `<button class="btn primary" onclick="${isLast?'goCasos()':'nextSocorrer()'}">${isLast?"Ver casos especiales →":"Siguiente →"}</button>`;
+  document.getElementById('actions').innerHTML = `<button class="btn primary" onclick="${isLast?'screenCasosLearn()':'nextSocorrer()'}">${isLast?"Ver casos especiales →":"Siguiente →"}</button>`;
 }
 function nextSocorrer(){ state.socorrerIdx++; renderSocorrer(); }
+
+/* ---- LEARN: CASOS ESPECIALES ---- */
+function screenCasosLearn(){
+  state.screen="casos_learn";
+  card(`
+    <span class="tag casos">4 · Casos especiales</span>
+    <h2>Vehículos de carga: situaciones frecuentes</h2>
+    <p class="desc">Además del protocolo general, ten en cuenta estas recomendaciones para casos específicos con vehículos de carga.</p>
+
+    <div class="case-item">
+      <div class="case-title">🛢️ Derrame de combustible, sustancias o mercancías</div>
+      <ul class="learn-list">
+        <li>Manténgase alejado del derrame.</li>
+        <li>Evite fuentes de ignición, llamas, cigarrillos o chispas.</li>
+        <li>No manipule la sustancia derramada. Informe y active el procedimiento de emergencia.</li>
+      </ul>
+    </div>
+
+    <div class="case-item">
+      <div class="case-title">🔥 Incendio</div>
+      <ul class="learn-list">
+        <li>Aléjese de la zona de peligro. No se exponga intentando controlarlo.</li>
+        <li>Informe inmediatamente a los organismos de emergencia y mantenga a otras personas alejadas.</li>
+      </ul>
+    </div>
+
+    <div class="case-item">
+      <div class="case-title">☣️ Mercancía peligrosa</div>
+      <ul class="learn-list">
+        <li>No manipule, abra ni retire la mercancía. Mantenga una distancia segura.</li>
+        <li>Informe la posible presencia de mercancías peligrosas y siga las instrucciones de las autoridades.</li>
+      </ul>
+    </div>
+
+    <div class="case-item">
+      <div class="case-title">🚛 Vehículo volcado o inestable</div>
+      <ul class="learn-list">
+        <li>No intente moverlo. Señalice y mantenga alejadas a las personas.</li>
+        <li>Espere la intervención de personal especializado. No ingrese a la zona de riesgo.</li>
+      </ul>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" onclick="goCasos()">Practicar casos especiales →</button>
+    </div>
+  `);
+}
 
 /* ---- CASOS ESPECIALES ---- */
 function goCasos(){
