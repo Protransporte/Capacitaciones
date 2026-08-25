@@ -424,6 +424,7 @@ function revealHazards(){
     ? `<b>Bien hecho.</b> Detectaste los ${totalHazards} peligros sin marcar elementos seguros.`
     : `<b>Repaso:</b> peligros correctos: ${correctPicked}/${totalHazards}${wrongPicked?`, marcaste ${wrongPicked} elemento(s) que no eran peligro`:""}${missed?`, te faltaron ${missed} por señalar (borde punteado ámbar)`:""}.`;
   document.querySelector('.actions').innerHTML = `<button class="btn primary" onclick="goProtegerQuiz()">Continuar →</button>`;
+  renderRoute();
 }
 
 /* ---- generic single/multi question renderer ---- */
@@ -482,7 +483,9 @@ function checkQuestion(){
   const fb = document.getElementById('fb');
   fb.className = "feedback show " + (isRight?"good":"bad");
   fb.innerHTML = `<b>${isRight?"¡Correcto!":"No exactamente."}</b> ${q.exp}`;
-  document.getElementById('actions').innerHTML = `<button class="btn primary" onclick="(${state._onNext.toString()})()">Continuar →</button>`;
+  document.getElementById('actions').innerHTML = `<button class="btn primary" id="nextBtn">Continuar →</button>`;
+  document.getElementById('nextBtn').addEventListener('click', state._onNext);
+  renderRoute();
 }
 
 function goProtegerQuiz(){
@@ -529,6 +532,7 @@ function answerSocorrer(said){
   const fb = document.getElementById('fb');
   fb.className="feedback show "+(isRight?"good":"bad");
   fb.innerHTML = `<b>${isRight?"¡Correcto!":"No exactamente."}</b> ${item.exp}`;
+  renderRoute();
   const isLast = state.socorrerIdx===Q_SOCORRER.length-1;
   document.getElementById('actions').innerHTML = `<button class="btn primary" onclick="${isLast?'goCasos()':'nextSocorrer()'}">${isLast?"Ver casos especiales →":"Siguiente →"}</button>`;
 }
@@ -570,6 +574,7 @@ function answerCasos(i){
   const fb = document.getElementById('fb');
   fb.className="feedback show "+(isRight?"good":"bad");
   fb.innerHTML = `<b>${isRight?"¡Correcto!":"No exactamente."}</b> Ante mercancías peligrosas, derrames o incendios, la prioridad es no exponerte, no manipular la carga o sustancia, y avisar de inmediato a los organismos de emergencia.`;
+  renderRoute();
   const isLast = state.casosIdx===Q_CASOS.length-1;
   document.getElementById('actions').innerHTML = `<button class="btn primary" onclick="${isLast?'goResults()':'nextCasos()'}">${isLast?"Ver resultado final →":"Siguiente caso →"}</button>`;
 }
