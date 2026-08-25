@@ -181,6 +181,44 @@
     border-top:1px dashed var(--line);border-bottom:1px dashed var(--line);padding:14px 6px;margin:6px 0 18px;
   }
   footer{text-align:center;color:var(--steel);font-size:11.5px;margin-top:22px;letter-spacing:.03em;}
+
+  /* ---------- NAME INPUT ---------- */
+  .name-input{
+    width:100%;padding:13px 14px;border-radius:10px;border:1.5px solid var(--line);
+    background:var(--card-2);color:var(--white);font-size:15.5px;margin-bottom:18px;
+    font-family:'Inter',sans-serif;
+  }
+  .name-input:focus{outline:none;border-color:var(--amber);}
+  .name-input::placeholder{color:var(--steel);}
+
+  /* ---------- CERTIFICATE ---------- */
+  .cert-wrap{background:#fdfaf1;color:#1c1f26;border:9px solid var(--amber);border-radius:8px;
+    padding:38px 30px;text-align:center;position:relative;margin-bottom:20px;}
+  .cert-wrap::before{content:"";position:absolute;inset:9px;border:1.5px solid var(--amber-dim);
+    border-radius:2px;pointer-events:none;}
+  .cert-seal{font-size:34px;margin-bottom:6px;}
+  .cert-eyebrow{font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:.25em;color:#8a6c22;
+    text-transform:uppercase;font-weight:600;margin-bottom:8px;}
+  .cert-title{font-family:'Oswald',sans-serif;font-size:27px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.03em;margin-bottom:4px;color:#1c1f26;}
+  .cert-sub{font-size:13px;color:#5b5142;margin-bottom:24px;}
+  .cert-name{font-family:'Oswald',sans-serif;font-size:29px;font-weight:600;color:#b5490f;
+    margin-bottom:16px;border-bottom:2px solid var(--amber-dim);display:inline-block;padding:0 10px 8px;
+    word-break:break-word;max-width:100%;}
+  .cert-text{font-size:14px;line-height:1.65;max-width:480px;margin:0 auto 28px;color:#33302a;}
+  .cert-footer{display:flex;justify-content:space-between;align-items:flex-end;margin-top:6px;
+    padding:0 8px;flex-wrap:wrap;gap:16px;}
+  .cert-sign{text-align:center;}
+  .cert-line{width:150px;border-top:1.5px solid #33302a;margin-bottom:6px;}
+  .cert-role{font-size:11.5px;color:#33302a;line-height:1.4;}
+  .cert-date{font-size:11.5px;color:#5b5142;align-self:flex-end;}
+
+  @media print{
+    body *{visibility:hidden;}
+    #certArea, #certArea *{visibility:visible;}
+    #certArea{position:absolute;top:0;left:0;width:100%;margin:0;padding:0;}
+    .cert-wrap{border-width:6px;box-shadow:none;}
+  }
 </style>
 </head>
 <body>
@@ -314,8 +352,11 @@ const Q_CASOS = [
 ];
 
 /* ===================== STATE ===================== */
+const PASS_PCT = 80;
+
 let state = {
-  screen:"intro",           // intro | hazards | q_proteger | q_avisar1 | q_avisar2 | q_socorrer | q_casos | results
+  screen:"name",           // name | intro | hazards | q_proteger | q_avisar1 | q_avisar2 | q_socorrer | q_casos | results | certificate
+  userName:"",
   score:0,
   total:0,
   hazardPicks:{},
@@ -329,12 +370,18 @@ let state = {
 };
 
 const GROUP_OF_SCREEN = {
-  intro:0, hazards:0, q_proteger:0,
+  name:0, intro:0, hazards:0, q_proteger:0,
   q_avisar1:1, q_avisar2:1,
   q_socorrer:2,
   q_casos:3,
-  results:4
+  results:4, certificate:4
 };
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
 
 /* ===================== HELPERS ===================== */
 function setScore(delta){ if(delta) state.score += delta; }
@@ -356,6 +403,33 @@ function renderRoute(){
 function card(html){ document.getElementById('card').innerHTML = html; renderRoute(); }
 
 /* ===================== SCREENS ===================== */
+
+function screenName(){
+  state.screen="name";
+  card(`
+    <div class="hero-icon">🪪</div>
+    <span class="tag proteger">Registro</span>
+    <h2>¿Cómo te llamas?</h2>
+    <p class="desc">Escribe tu nombre completo. Si apruebas el simulacro (80% de aciertos o más), lo usaremos para generar tu certificado.</p>
+    <input type="text" id="nameField" class="name-input" placeholder="Nombre y apellido" autocomplete="name" maxlength="60">
+    <div class="actions">
+      <button class="btn primary" id="nameBtn" disabled onclick="submitName()">Comenzar →</button>
+    </div>
+  `);
+  const field = document.getElementById('nameField');
+  const btn = document.getElementById('nameBtn');
+  field.addEventListener('input', ()=>{ btn.disabled = field.value.trim().length===0; });
+  field.addEventListener('keydown', (e)=>{ if(e.key==='Enter' && field.value.trim().length>0) submitName(); });
+  field.focus();
+}
+
+function submitName(){
+  const field = document.getElementById('nameField');
+  const val = field.value.trim();
+  if(!val) return;
+  state.userName = val;
+  screenIntro();
+}
 
 function screenIntro(){
   card(`
@@ -584,13 +658,14 @@ function nextCasos(){ state.casosIdx++; renderCasos(); }
 function goResults(){
   state.screen="results";
   const p = pct(state.score, state.total);
+  const passed = p>=PASS_PCT;
   let badgeEmoji="🥉", badgeTitle="Sigue practicando", badgeSub="Repasa el protocolo y vuelve a intentarlo.";
   if(p>=90){ badgeEmoji="🏅"; badgeTitle="Conductor PAS Certificado"; badgeSub="Dominas las tres fases del protocolo."; }
-  else if(p>=70){ badgeEmoji="🥈"; badgeTitle="Buen desempeño"; badgeSub="Estás muy cerca de dominar el protocolo."; }
+  else if(passed){ badgeEmoji="🥈"; badgeTitle="Buen desempeño"; badgeSub="Aprobaste el simulacro."; }
 
   card(`
     <span class="tag proteger">Resultado</span>
-    <h2>Simulacro completado</h2>
+    <h2>${escapeHtml(state.userName)}, simulacro completado</h2>
     <div class="badge">
       <div class="emoji">${badgeEmoji}</div>
       <div>
@@ -612,19 +687,63 @@ function goResults(){
 
     <div class="quote">"No necesitamos ser héroes. Necesitamos actuar correctamente."</div>
 
+    <p class="desc" style="margin-bottom:14px;">
+      ${passed
+        ? `Superaste el mínimo de ${PASS_PCT}% para aprobar. Ya puedes generar tu certificado.`
+        : `Necesitas al menos ${PASS_PCT}% de aciertos para obtener el certificado. ¡Vuelve a intentarlo!`}
+    </p>
+
     <div class="actions">
       <button class="btn ghost" onclick="restart()">Repetir simulacro</button>
+      ${passed ? `<button class="btn primary" onclick="screenCertificate()">Ver mi certificado →</button>` : ``}
+    </div>
+  `);
+}
+
+/* ---- CERTIFICATE ---- */
+function screenCertificate(){
+  state.screen="certificate";
+  const p = pct(state.score, state.total);
+  const today = new Date();
+  const fecha = today.toLocaleDateString('es-CO', { year:'numeric', month:'long', day:'numeric' });
+
+  card(`
+    <span class="tag proteger">Certificado</span>
+    <div id="certArea">
+      <div class="cert-wrap">
+        <div class="cert-seal">🏅</div>
+        <div class="cert-eyebrow">Pro Transporte S.A.S.</div>
+        <div class="cert-title">Certificado de Participación</div>
+        <div class="cert-sub">Simulacro del Protocolo PAS · Proteger — Avisar — Socorrer (D-GO-14)</div>
+        <div class="cert-name">${escapeHtml(state.userName)}</div>
+        <div class="cert-text">
+          Completó satisfactoriamente el simulacro interactivo del protocolo para la atención de
+          siniestros viales, obteniendo un puntaje de <b>${state.score}/${state.total} (${p}%)</b>.
+        </div>
+        <div class="cert-footer">
+          <div class="cert-sign">
+            <div class="cert-line"></div>
+            <div class="cert-role">Mauricio Martínez<br>Representante Legal</div>
+          </div>
+          <div class="cert-date">${fecha}</div>
+        </div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn ghost" onclick="goResults()">← Volver</button>
+      <button class="btn primary" onclick="window.print()">Descargar / imprimir PDF</button>
     </div>
   `);
 }
 
 function restart(){
-  state = {screen:"intro", score:0, total:0, hazardPicks:{}, socorrerIdx:0, casosIdx:0};
+  const keepName = state.userName;
+  state = {screen:"intro", userName:keepName, score:0, total:0, hazardPicks:{}, socorrerIdx:0, casosIdx:0};
   screenIntro();
 }
 
 /* ===================== INIT ===================== */
-screenIntro();
+screenName();
 </script>
 </body>
 </html>
